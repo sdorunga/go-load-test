@@ -19,7 +19,7 @@ func requests(fileName string) []Request {
 func buildRequests(lines []string) []Request {
 	requests := make([]Request, 0)
 	for _, line := range lines {
-		vars := strings.Fields(string(line))
+		vars := strings.Fields(line)
 		if len(vars) == 0 {
 			break
 		}

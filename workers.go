@@ -66,17 +66,17 @@ func max(numbers []int) int {
 
 /////////
 
-func run_requests(concurrency int, requests []Request) {
+func runRequests(concurrency int, requests []Request) {
 	jobs := make(chan []Request, 100)
 	results := make(chan int, 100)
 
-	setup_workers(concurrency, jobs, results)
-	queue_jobs(concurrency, jobs, results, requests)
+	setupWorkers(concurrency, jobs, results)
+	queueJobs(concurrency, jobs, results, requests)
 }
 
-func wait_for_results(count int, request_count int, results <-chan int) {
+func waitForResults(count int, requestCount int, results <-chan int) {
 	times := make([]int, 0)
-	for i := 0; i < count*request_count; i++ {
+	for i := 0; i < count*requestCount; i++ {
 		times = append(times, <-results)
 	}
 	fmt.Println("Number of Requests: ", len(times))
@@ -86,15 +86,15 @@ func wait_for_results(count int, request_count int, results <-chan int) {
 	fmt.Println("Max: ", max(times))
 }
 
-func queue_jobs(count int, jobs chan<- []Request, results <-chan int, requests []Request) {
+func queueJobs(count int, jobs chan<- []Request, results <-chan int, requests []Request) {
 	for i := 0; i < count; i++ {
 		jobs <- requests
 	}
 	close(jobs)
-	wait_for_results(count, len(requests), results)
+	waitForResults(count, len(requests), results)
 }
 
-func setup_workers(count int, jobs <-chan []Request, results chan<- int) {
+func setupWorkers(count int, jobs <-chan []Request, results chan<- int) {
 	for i := 0; i < count; i++ {
 		go worker(i, jobs, results)
 	}
@@ -103,23 +103,23 @@ func setup_workers(count int, jobs <-chan []Request, results chan<- int) {
 func worker(id int, jobs <-chan []Request, results chan<- int) {
 	for requests := range jobs {
 		for _, request := range requests {
-			time := time_request(request, id)
+			time := timeRequest(request, id)
 			results <- time
 		}
 	}
 }
 
-func time_request(request Request, worker_id int) int {
-	start := now_in_millis()
-	_, err := http.Get(request.Url)
+func timeRequest(request Request, workerID int) int {
+	start := nowInMillis()
+	_, err := http.Get(request.URL)
 	if err != nil {
-		fmt.Println("Error making a " + request.Verb + " request to " + request.Url)
+		fmt.Println("Error making a " + request.Verb + " request to " + request.URL)
 	}
-	request_time := now_in_millis() - start
-	fmt.Println("Worker "+strconv.Itoa(worker_id)+" processed "+request.Verb+" for "+request.Url+" in: ", request_time, "ms")
-	return int(request_time)
+	requestTime := nowInMillis() - start
+	fmt.Println("Worker "+strconv.Itoa(workerID)+" processed "+request.Verb+" for "+request.URL+" in: ", requestTime, "ms")
+	return int(requestTime)
 }
 
-func now_in_millis() int64 {
+func nowInMillis() int64 {
 	return time.Now().UnixNano() / int64(time.Millisecond)
 }

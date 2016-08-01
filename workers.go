@@ -8,7 +8,19 @@ import(
 )
 
 /////////
+func average(numbers []int) int {
+  if len(numbers) == 0 {
+    return 0
+  }
+
+  return sum(numbers)/len(numbers)
+}
+
 func median(numbers []int) int {
+    if len(numbers) == 0 {
+      return 0
+    }
+
     middle := len(numbers) / 2
     result := numbers[middle]
     if len(numbers)%2 == 0 {
@@ -25,6 +37,10 @@ func sum(numbers []int) (total int) {
 }
 
 func min(numbers []int) int {
+  if len(numbers) == 0 {
+    return 0
+  }
+
   min := numbers[0]
   for _, number := range numbers {
     if min > number {
@@ -35,6 +51,10 @@ func min(numbers []int) int {
 }
 
 func max(numbers []int) int {
+  if len(numbers) == 0 {
+    return 0
+  }
+
   max := numbers[0]
   for _, number := range numbers {
     if max < number {
@@ -59,7 +79,7 @@ func wait_for_results(count int, request_count int, results <-chan int) {
     times = append(times, <-results)
   }
   fmt.Println("Number of Requests: ", len(times))
-  fmt.Println("Average: ", sum(times)/len(times))
+  fmt.Println("Average: ", average(times))
   fmt.Println("Median: ", median(times))
   fmt.Println("Min: ", min(times))
   fmt.Println("Max: ", max(times))

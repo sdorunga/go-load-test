@@ -1,5 +1,7 @@
 # go-load-test
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/sdorunga1/go-load-test)](https://goreportcard.com/report/github.com/sdorunga1/go-load-test)
+
 `go build *.go` to build the project
 
 `load -h` for instructions

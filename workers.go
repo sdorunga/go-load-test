@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"strconv"
 	"time"
 )
@@ -111,7 +110,7 @@ func worker(id int, jobs <-chan []Request, results chan<- int) {
 
 func timeRequest(request Request, workerID int) int {
 	start := nowInMillis()
-	_, err := http.Get(request.URL)
+	_, err := request.Perform()
 	if err != nil {
 		fmt.Println("Error making a " + request.Verb + " request to " + request.URL)
 	}

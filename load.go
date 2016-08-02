@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+  "net/http"
 )
 
 func main() {
@@ -9,5 +10,5 @@ func main() {
 	requestsFile := flag.String("f", "requests", "Name of file to use as the requests list")
 	flag.Parse()
 
-	runRequests(*concurrency, requests(*requestsFile))
+	runRequests(*concurrency, requests(*requestsFile, http.Client{}))
 }

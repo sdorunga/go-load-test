@@ -1,22 +1,31 @@
 package main
 
-import "testing"
+import (
+  "testing"
+  "net/http"
+)
 
-func TestCorrectNumberOfRequests(t *testing.T) {
-	if countRequests := len(requests("test_support/requests")); countRequests != 2 {
+type TestClient struct {
+}
+
+func (this *TestClient) Get() {
+}
+
+func TestCorrectNumberOfequests(t *testing.T) {
+	if countRequests := len(requests("test_support/requests", http.Client{})); countRequests != 2 {
 		t.Errorf("Wrong number of requests built: expected 2, got %d", countRequests)
 	}
 }
 
 func TestCorrectURLsAreExtracted(t *testing.T) {
-	reqs := requests("test_support/requests")
+	reqs := requests("test_support/requests", http.Client{})
 	if reqs[0].URL != "https://google.com" || reqs[1].URL != "https://formly.com?q=hello" {
 		t.Errorf("Expected https://google.com and https://formly.com?q=hello urls. Got: %s and %s", reqs[0].URL, reqs[1].URL)
 	}
 }
 
 func TestCorrectVerbsExtracted(t *testing.T) {
-	reqs := requests("test_support/requests")
+	reqs := requests("test_support/requests", http.Client{})
 	if reqs[0].Verb != "GET" || reqs[1].Verb != "POST" {
 		t.Errorf("Expected GET and POST verbs. Got: %s and %s", reqs[0].Verb, reqs[1].Verb)
 	}

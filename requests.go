@@ -15,20 +15,24 @@ type Request struct {
 }
 
 type Client interface {
-	Get(url string)
+	Do(request Request)
 }
 
 type httpClient struct {
 	client http.Client
 }
 
-func (this *httpClient) Get(url string) {
-	this.client.Get(url)
+func (this *httpClient) Do(request Request) {
+  req, err := http.NewRequest(request.Verb, request.URL, nil)
+  if err != nil {
+		fmt.Println("Error making a " + request.Verb + " request to " + request.URL)
+  }
+	this.client.Do(req)
 }
 
 func (this *Request) Perform() (resp *http.Response, err error) {
 	start := nowInMillis()
-	this.client.Get(this.URL)
+	this.client.Do(*this)
 	if err != nil {
 		fmt.Println("Error making a " + this.Verb + " request to " + this.URL)
 	}

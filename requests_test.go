@@ -9,8 +9,8 @@ type TestClient struct {
 	requestsCount int
 }
 
-func (this *TestClient) Get(url string) {
-	this.requests = append(this.requests, url)
+func (this *TestClient) Do(request Request) {
+	this.requests = append(this.requests, request.URL)
 	this.requestsCount++
 }
 

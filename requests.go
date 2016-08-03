@@ -3,39 +3,48 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"strings"
-  "net/http"
 )
 
 type Request struct {
-	Verb string
-	URL  string
-  client Client
+	Verb    string
+	URL     string
+	client  Client
+	verbose bool
 }
 
 type Client interface {
-  Get(url string)
+	Get(url string)
 }
 
 type httpClient struct {
-  client http.Client
+	client http.Client
 }
 
 func (this *httpClient) Get(url string) {
-  this.client.Get(url)
+	this.client.Get(url)
 }
 
 func (this *Request) Perform() (resp *http.Response, err error) {
-  this.client.Get(this.URL)
-  return
+	start := nowInMillis()
+	this.client.Get(this.URL)
+	if err != nil {
+		fmt.Println("Error making a " + this.Verb + " request to " + this.URL)
+	}
+	requestTime := nowInMillis() - start
+	if this.verbose {
+		fmt.Println("Processed "+this.Verb+" for "+this.URL+" in: ", requestTime, "ms")
+	}
+	return
 }
 
-func requests(fileName string, httpClient Client) []Request {
+func requests(fileName string, httpClient Client, verbose bool) []Request {
 	requestLines := fileLines(fileName)
-	return buildRequests(requestLines, httpClient)
+	return buildRequests(requestLines, httpClient, verbose)
 }
 
-func buildRequests(lines []string, httpClient Client) []Request {
+func buildRequests(lines []string, httpClient Client, verbose bool) []Request {
 	requests := make([]Request, 0)
 	for _, line := range lines {
 		vars := strings.Fields(line)
@@ -43,7 +52,7 @@ func buildRequests(lines []string, httpClient Client) []Request {
 			break
 		}
 
-		requests = append(requests, Request{vars[0], vars[1], httpClient})
+		requests = append(requests, Request{vars[0], vars[1], httpClient, verbose})
 	}
 	return requests
 }

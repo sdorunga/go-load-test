@@ -1,12 +1,12 @@
 package main
 
 import (
-  "fmt"
-  "sort"
+	"fmt"
+	"sort"
 )
 
 type StatsPrinter struct {
-  times []int
+	times []int
 }
 
 func (this *StatsPrinter) Print() {
@@ -26,7 +26,7 @@ func (this *StatsPrinter) average() int {
 }
 
 func (this *StatsPrinter) median() int {
-  sort.Ints(this.times)
+	sort.Ints(this.times)
 	if len(this.times) == 0 {
 		return 0
 	}

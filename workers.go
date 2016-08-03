@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"strconv"
 	"time"
 )
 
@@ -12,10 +10,10 @@ func runRequests(concurrency int, requests []Request) {
 
 	setupWorkers(concurrency, jobs, results)
 	queueJobs(concurrency, jobs, results, requests)
-  times := gatherTimes(concurrency, len(requests), results)
+	times := gatherTimes(concurrency, len(requests), results)
 
-  stats := StatsPrinter{times}
-  stats.Print()
+	stats := StatsPrinter{times}
+	stats.Print()
 }
 
 func gatherTimes(count int, requestCount int, results <-chan int) []int {
@@ -23,7 +21,7 @@ func gatherTimes(count int, requestCount int, results <-chan int) []int {
 	for i := 0; i < count*requestCount; i++ {
 		times = append(times, <-results)
 	}
-  return times
+	return times
 }
 
 func queueJobs(count int, jobs chan<- []Request, results <-chan int, requests []Request) {
@@ -50,12 +48,8 @@ func worker(id int, jobs <-chan []Request, results chan<- int) {
 
 func timeRequest(request Request, workerID int) int {
 	start := nowInMillis()
-	_, err := request.Perform()
-	if err != nil {
-		fmt.Println("Error making a " + request.Verb + " request to " + request.URL)
-	}
+	request.Perform()
 	requestTime := nowInMillis() - start
-	fmt.Println("Worker "+strconv.Itoa(workerID)+" processed "+request.Verb+" for "+request.URL+" in: ", requestTime, "ms")
 	return int(requestTime)
 }
 

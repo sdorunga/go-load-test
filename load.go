@@ -12,5 +12,8 @@ func main() {
 	flag.Parse()
 
 	client := httpClient{http.Client{}}
-	runRequests(*concurrency, requests(*requestsFile, &client, *verbose))
+  times := runRequests(*concurrency, requests(*requestsFile, &client, *verbose))
+
+	stats := StatsPrinter{times}
+	stats.Print()
 }

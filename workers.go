@@ -4,16 +4,13 @@ import (
 	"time"
 )
 
-func runRequests(concurrency int, requests []Request) {
+func runRequests(concurrency int, requests []Request) []int {
 	jobs := make(chan []Request, 100)
 	results := make(chan int, 100)
 
 	setupWorkers(concurrency, jobs, results)
 	queueJobs(concurrency, jobs, results, requests)
-	times := gatherTimes(concurrency, len(requests), results)
-
-	stats := StatsPrinter{times}
-	stats.Print()
+	return gatherTimes(concurrency, len(requests), results)
 }
 
 func gatherTimes(count int, requestCount int, results <-chan int) []int {

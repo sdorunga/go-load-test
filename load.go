@@ -10,5 +10,6 @@ func main() {
 	requestsFile := flag.String("f", "requests", "Name of file to use as the requests list")
 	flag.Parse()
 
-	runRequests(*concurrency, requests(*requestsFile, http.Client{}))
+  client := httpClient{http.Client{}}
+	runRequests(*concurrency, requests(*requestsFile, &client))
 }

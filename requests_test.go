@@ -2,36 +2,7 @@ package main
 
 import (
 	"testing"
-  "net/http"
 )
-
-type TestClient struct {
-	requests      []string
-	requestsCount int
-}
-
-type TestTimer struct {
-	startTime int64
-	endTime int64
-}
-
-func (this *TestTimer) Start() {
-  this.startTime = 100
-}
-
-func (this *TestTimer) Stop() {
-  this.endTime = 200
-}
-
-func (this *TestTimer) Duration() int {
-  return int(this.endTime - this.startTime)
-}
-
-func (this *TestClient) Do(request Request) (http.Response, error) {
-	this.requests = append(this.requests, request.URL)
-	this.requestsCount++
-  return http.Response{}, nil
-}
 
 func TestCorrectNumberOfequests(t *testing.T) {
 	if countRequests := len(requests("test_support/requests", &TestClient{}, false)); countRequests != 2 {
@@ -65,11 +36,11 @@ func TestHTTPRequestsPerformCallsTheClient(t *testing.T) {
 
 func TestHTTPRequestsPerformCallsAreTimed(t *testing.T) {
 	client := TestClient{}
-  timer := TestTimer{}
+	timer := TestTimer{}
 	reqs := requests("test_support/requests", &client, false)
-  req := reqs[0]
-  req.timer = &timer
-  req.Perform()
+	req := reqs[0]
+	req.timer = &timer
+	req.Perform()
 	if req.Duration() != 100 {
 		t.Errorf("Expected 100ms duration, got %d", req.Duration())
 	}

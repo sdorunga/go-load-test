@@ -33,7 +33,7 @@ func setupWorkers(count int, jobs <-chan []Request, results chan<- Request) {
 func worker(id int, jobs <-chan []Request, results chan<- Request) {
 	for requests := range jobs {
 		for _, request := range requests {
-      request.Perform()
+			request.Perform()
 			results <- request
 		}
 	}

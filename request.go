@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+type TimeableTask interface {
+  Perform()
+  Duration() int
+}
+
 type Request struct {
 	Verb    string
 	URL     string

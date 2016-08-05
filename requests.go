@@ -6,20 +6,20 @@ import (
 	"strings"
 )
 
-func requests(fileName string, httpClient Client, verbose bool) []Request {
+func requests(fileName string, httpClient Client, verbose bool) []TimeableTask {
 	requestLines := fileLines(fileName)
 	return buildRequests(requestLines, httpClient, verbose)
 }
 
-func buildRequests(lines []string, httpClient Client, verbose bool) []Request {
-	requests := make([]Request, 0)
+func buildRequests(lines []string, httpClient Client, verbose bool) []TimeableTask {
+	requests := make([]TimeableTask, 0)
 	for _, line := range lines {
 		vars := strings.Fields(line)
 		if len(vars) == 0 {
 			break
 		}
 
-		requests = append(requests, Request{vars[0], vars[1], httpClient, verbose, &MilliTimer{}})
+		requests = append(requests, &Request{vars[0], vars[1], httpClient, verbose, &MilliTimer{}})
 	}
 	return requests
 }

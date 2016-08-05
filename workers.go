@@ -1,36 +1,36 @@
 package main
 
-func runRequests(concurrency int, requests []Request) []Request {
-	jobs := make(chan []Request, 100)
-	results := make(chan Request, 100)
+func runRequests(concurrency int, requests []TimeableTask) []TimeableTask {
+	jobs := make(chan []TimeableTask, 100)
+	results := make(chan TimeableTask, 100)
 
 	setupWorkers(concurrency, jobs, results)
 	queueJobs(concurrency, jobs, results, requests)
 	return gatherTimes(concurrency, len(requests), results)
 }
 
-func gatherTimes(count int, requestCount int, results <-chan Request) []Request {
-	requests := make([]Request, 0)
+func gatherTimes(count int, requestCount int, results <-chan TimeableTask) []TimeableTask {
+	requests := make([]TimeableTask, 0)
 	for i := 0; i < count*requestCount; i++ {
 		requests = append(requests, <-results)
 	}
 	return requests
 }
 
-func queueJobs(count int, jobs chan<- []Request, results <-chan Request, requests []Request) {
+func queueJobs(count int, jobs chan<- []TimeableTask, results <-chan TimeableTask, requests []TimeableTask) {
 	for i := 0; i < count; i++ {
 		jobs <- requests
 	}
 	close(jobs)
 }
 
-func setupWorkers(count int, jobs <-chan []Request, results chan<- Request) {
+func setupWorkers(count int, jobs <-chan []TimeableTask, results chan<- TimeableTask) {
 	for i := 0; i < count; i++ {
 		go worker(i, jobs, results)
 	}
 }
 
-func worker(id int, jobs <-chan []Request, results chan<- Request) {
+func worker(id int, jobs <-chan []TimeableTask, results chan<- TimeableTask) {
 	for requests := range jobs {
 		for _, request := range requests {
 			request.Perform()

@@ -12,15 +12,15 @@ func TestCorrectNumberOfequests(t *testing.T) {
 
 func TestCorrectURLsAreExtracted(t *testing.T) {
 	reqs := requests("test_support/requests", &TestClient{}, false)
-	if reqs[0].URL != "https://google.com" || reqs[1].URL != "https://formly.com?q=hello" {
-		t.Errorf("Expected https://google.com and https://formly.com?q=hello urls. Got: %s and %s", reqs[0].URL, reqs[1].URL)
+	if reqs[0].(*Request).URL != "https://google.com" || reqs[1].(*Request).URL != "https://formly.com?q=hello" {
+		t.Errorf("Expected https://google.com and https://formly.com?q=hello urls. Got: %s and %s", reqs[0].(*Request).URL, reqs[1].(*Request).URL)
 	}
 }
 
 func TestCorrectVerbsExtracted(t *testing.T) {
 	reqs := requests("test_support/requests", &TestClient{}, false)
-	if reqs[0].Verb != "GET" || reqs[1].Verb != "POST" {
-		t.Errorf("Expected GET and POST verbs. Got: %s and %s", reqs[0].Verb, reqs[1].Verb)
+	if reqs[0].(*Request).Verb != "GET" || reqs[1].(*Request).Verb != "POST" {
+		t.Errorf("Expected GET and POST verbs. Got: %s and %s", reqs[0].(*Request).Verb, reqs[1].(*Request).Verb)
 	}
 }
 
@@ -38,7 +38,7 @@ func TestHTTPRequestsPerformCallsAreTimed(t *testing.T) {
 	client := TestClient{}
 	timer := TestTimer{}
 	reqs := requests("test_support/requests", &client, false)
-	req := reqs[0]
+	req := reqs[0].(*Request)
 	req.timer = &timer
 	req.Perform()
 	if req.Duration() != 100 {

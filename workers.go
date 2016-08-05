@@ -1,9 +1,5 @@
 package main
 
-import (
-	"time"
-)
-
 func runRequests(concurrency int, requests []Request) []Request {
 	jobs := make(chan []Request, 100)
 	results := make(chan Request, 100)
@@ -41,8 +37,4 @@ func worker(id int, jobs <-chan []Request, results chan<- Request) {
 			results <- request
 		}
 	}
-}
-
-func nowInMillis() int64 {
-	return time.Now().UnixNano() / int64(time.Millisecond)
 }

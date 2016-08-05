@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+  "time"
 )
 
 type Request struct {
@@ -65,11 +66,15 @@ func (this *MilliTimer) Duration() int {
 }
 
 func (this *MilliTimer) Start() {
-  this.startTime = nowInMillis()
+  this.startTime = this.nowInMillis()
 }
 
 func (this *MilliTimer) Stop() {
-  this.endTime = nowInMillis()
+  this.endTime = this.nowInMillis()
+}
+
+func (this *MilliTimer) nowInMillis() int64 {
+	return time.Now().UnixNano() / int64(time.Millisecond)
 }
 
 func requests(fileName string, httpClient Client, verbose bool) []Request {

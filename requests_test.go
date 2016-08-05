@@ -2,6 +2,7 @@ package main
 
 import (
 	"testing"
+  "net/http"
 )
 
 type TestClient struct {
@@ -9,9 +10,27 @@ type TestClient struct {
 	requestsCount int
 }
 
-func (this *TestClient) Do(request Request) {
+type TestTimer struct {
+	startTime int64
+	endTime int64
+}
+
+func (this *TestTimer) Start() {
+  this.startTime = 100
+}
+
+func (this *TestTimer) Stop() {
+  this.endTime = 200
+}
+
+func (this *TestTimer) Duration() int {
+  return int(this.endTime - this.startTime)
+}
+
+func (this *TestClient) Do(request Request) (http.Response, error) {
 	this.requests = append(this.requests, request.URL)
 	this.requestsCount++
+  return http.Response{}, nil
 }
 
 func TestCorrectNumberOfequests(t *testing.T) {
@@ -34,12 +53,24 @@ func TestCorrectVerbsExtracted(t *testing.T) {
 	}
 }
 
-func TestHTTPRequests(t *testing.T) {
+func TestHTTPRequestsPerformCallsTheClient(t *testing.T) {
 	client := TestClient{}
 	reqs := requests("test_support/requests", &client, false)
 	reqs[0].Perform()
 	reqs[1].Perform()
 	if client.requestsCount != 2 {
 		t.Errorf("Expected 2 requests, got %d", client.requestsCount)
+	}
+}
+
+func TestHTTPRequestsPerformCallsAreTimed(t *testing.T) {
+	client := TestClient{}
+  timer := TestTimer{}
+	reqs := requests("test_support/requests", &client, false)
+  req := reqs[0]
+  req.timer = &timer
+  req.Perform()
+	if req.Duration() != 100 {
+		t.Errorf("Expected 100ms duration, got %d", req.Duration())
 	}
 }

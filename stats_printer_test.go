@@ -43,3 +43,17 @@ func TestMedian(t *testing.T) {
 		t.Errorf("Expected median to be 45, is %d", stats.median())
 	}
 }
+
+func TestPercentile(t *testing.T) {
+  stats := StatsPrinter{[]int{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}}
+  if stats.percentile(0.70) != 7 {
+		t.Errorf("Expected the 70th percentile to return the 7th number, returned %d", stats.percentile(0.70))
+  }
+}
+
+func TestPercentileWithRounding(t *testing.T) {
+  stats := StatsPrinter{[]int{10, 9, 8, 7, 6, 5, 4, 3, 2, 1}}
+  if stats.percentile(0.75) != 8 {
+		t.Errorf("Expected the 75th percentile to return the 8th number, returned %d", stats.percentile(0.75))
+  }
+}

@@ -15,6 +15,9 @@ func (this *StatsPrinter) Print() {
 	fmt.Println("Median: ", this.median())
 	fmt.Println("Min: ", this.min())
 	fmt.Println("Max: ", this.max())
+	fmt.Println("90th Percentile: ", this.percentile(0.90))
+	fmt.Println("95th Percentile: ", this.percentile(0.95))
+	fmt.Println("99th Percentile: ", this.percentile(0.99))
 }
 
 func (this *StatsPrinter) average() int {
@@ -26,10 +29,10 @@ func (this *StatsPrinter) average() int {
 }
 
 func (this *StatsPrinter) median() int {
-	sort.Ints(this.times)
 	if len(this.times) == 0 {
 		return 0
 	}
+  sort.Ints(this.times)
 
 	middle := len(this.times) / 2
 	result := this.times[middle]
@@ -72,4 +75,18 @@ func (this *StatsPrinter) max() int {
 		}
 	}
 	return max
+}
+
+func (this *StatsPrinter) percentile(rank float32) int {
+	if len(this.times) == 0 {
+		return 0
+	}
+
+	sort.Ints(this.times)
+  fmt.Println(this.times)
+  index := rank * (float32(len(this.times)))
+  fmt.Println(index)
+  // The 0.5 is used to make int round up to the next integer
+  // Does not work for negative numbers which times should never be
+  return this.times[int(index - 1 + 0.5)]
 }

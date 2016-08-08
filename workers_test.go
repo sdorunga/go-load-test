@@ -5,24 +5,24 @@ import (
 )
 
 type TestRequest struct {
-  isPerformed bool
-  performCount int
+	isPerformed  bool
+	performCount int
 }
 
 func (this *TestRequest) Perform() {
-  this.isPerformed = true
-  this.performCount++
+	this.isPerformed = true
+	this.performCount++
 }
 
 func (this *TestRequest) Duration() int {
-  return 1
+	return 1
 }
 
 func TestWorkerCallsPerformOnRequestsOnceWhenNotConcurrent(t *testing.T) {
-  request := &TestRequest{}
-  requests := []TimeableTask{request}
-  results := runRequests(1, requests)
-  performedRequest := results[0].(*TestRequest)
+	request := &TestRequest{}
+	requests := []Task{request}
+	results := runRequests(1, requests, false)
+	performedRequest := results[0].task.(*TestRequest)
 	if performedRequest.isPerformed != true {
 		t.Errorf("Expected request to be performed, got %b", performedRequest.isPerformed)
 	}
@@ -33,10 +33,10 @@ func TestWorkerCallsPerformOnRequestsOnceWhenNotConcurrent(t *testing.T) {
 }
 
 func TestWorkerCallsPerformOnRequestsTwiceWithConcurrency(t *testing.T) {
-  request := &TestRequest{}
-  requests := []TimeableTask{request}
-  results := runRequests(2, requests)
-  performedRequest := results[0].(*TestRequest)
+	request := &TestRequest{}
+	requests := []Task{request}
+	results := runRequests(2, requests, false)
+	performedRequest := results[0].task.(*TestRequest)
 	if performedRequest.isPerformed != true {
 		t.Errorf("Expected request to be performed, got %b", performedRequest.isPerformed)
 	}

@@ -6,37 +6,40 @@ import (
 )
 
 type StatsPrinter struct {
-	times []int
+	times     []int
+	totalTime int
 }
 
 func (this *StatsPrinter) Print() {
-	fmt.Println("Number of Requests: ", len(this.times))
-	fmt.Println("Average: ", this.average())
-	fmt.Println("Median: ", this.median())
-	fmt.Println("Min: ", this.min())
-	fmt.Println("Max: ", this.max())
-	fmt.Println("90th Percentile: ", this.percentile(0.90))
-	fmt.Println("95th Percentile: ", this.percentile(0.95))
-	fmt.Println("99th Percentile: ", this.percentile(0.99))
+	fmt.Println("Number of Requests: ", this.requestCount())
+	fmt.Println("Average: ", this.average(), "ms")
+	fmt.Println("Median: ", this.median(), "ms")
+	fmt.Println("Min: ", this.min(), "ms")
+	fmt.Println("Max: ", this.max(), "ms")
+	fmt.Println("90th Percentile: ", this.percentile(0.90), "ms")
+	fmt.Println("95th Percentile: ", this.percentile(0.95), "ms")
+	fmt.Println("99th Percentile: ", this.percentile(0.99), "ms")
+	fmt.Printf("Requests/s %.2f\n", this.requestPerSecond())
+	fmt.Println("Duration", this.totalTime, "ms")
 }
 
 func (this *StatsPrinter) average() int {
-	if len(this.times) == 0 {
+	if this.requestCount() == 0 {
 		return 0
 	}
 
-	return this.sum() / len(this.times)
+	return this.sum() / this.requestCount()
 }
 
 func (this *StatsPrinter) median() int {
-	if len(this.times) == 0 {
+	if this.requestCount() == 0 {
 		return 0
 	}
-  sort.Ints(this.times)
+	sort.Ints(this.times)
 
-	middle := len(this.times) / 2
+	middle := this.requestCount() / 2
 	result := this.times[middle]
-	if len(this.times)%2 == 0 {
+	if this.requestCount()%2 == 0 {
 		result = (result + this.times[middle-1]) / 2
 	}
 	return result
@@ -50,7 +53,7 @@ func (this *StatsPrinter) sum() (total int) {
 }
 
 func (this *StatsPrinter) min() int {
-	if len(this.times) == 0 {
+	if this.requestCount() == 0 {
 		return 0
 	}
 
@@ -64,7 +67,7 @@ func (this *StatsPrinter) min() int {
 }
 
 func (this *StatsPrinter) max() int {
-	if len(this.times) == 0 {
+	if this.requestCount() == 0 {
 		return 0
 	}
 
@@ -78,15 +81,21 @@ func (this *StatsPrinter) max() int {
 }
 
 func (this *StatsPrinter) percentile(rank float32) int {
-	if len(this.times) == 0 {
+	if this.requestCount() == 0 {
 		return 0
 	}
 
 	sort.Ints(this.times)
-  fmt.Println(this.times)
-  index := rank * (float32(len(this.times)))
-  fmt.Println(index)
-  // The 0.5 is used to make int round up to the next integer
-  // Does not work for negative numbers which times should never be
-  return this.times[int(index - 1 + 0.5)]
+	index := rank * (float32(this.requestCount()))
+	// The 0.5 is used to make int round up to the next integer
+	// Does not work for negative numbers which times should never be
+	return this.times[int(index-1+0.5)]
+}
+
+func (this *StatsPrinter) requestPerSecond() float32 {
+	return float32(this.requestCount()) / (float32(this.totalTime) / 1000)
+}
+
+func (this *StatsPrinter) requestCount() int {
+	return (len(this.times))
 }

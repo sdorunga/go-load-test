@@ -12,12 +12,15 @@ func main() {
 	flag.Parse()
 
 	client := httpClient{http.Client{}}
-	requests := runRequests(*concurrency, requests(*requestsFile, &client, *verbose))
+
+	time := nowInMillis()
+	results := runRequests(*concurrency, requests(*requestsFile, &client), *verbose)
+	totalTime := nowInMillis() - time
 
 	var times []int
-	for _, request := range requests {
-		times = append(times, request.Duration())
+	for _, result := range results {
+		times = append(times, result.duration)
 	}
-	stats := StatsPrinter{times}
+	stats := StatsPrinter{times, totalTime}
 	stats.Print()
 }

@@ -21,7 +21,7 @@ func (this *TestRequest) Duration() int {
 func TestWorkerCallsPerformOnRequestsOnceWhenNotConcurrent(t *testing.T) {
 	request := &TestRequest{}
 	requests := []Task{request}
-	results := runRequests(1, requests, false)
+	results := runRequests(1, requests, false, false)
 	performedRequest := results[0].task.(*TestRequest)
 	if performedRequest.isPerformed != true {
 		t.Errorf("Expected request to be performed, got %b", performedRequest.isPerformed)
@@ -35,7 +35,7 @@ func TestWorkerCallsPerformOnRequestsOnceWhenNotConcurrent(t *testing.T) {
 func TestWorkerCallsPerformOnRequestsTwiceWithConcurrency(t *testing.T) {
 	request := &TestRequest{}
 	requests := []Task{request}
-	results := runRequests(2, requests, false)
+	results := runRequests(2, requests, false, false)
 	performedRequest := results[0].task.(*TestRequest)
 	if performedRequest.isPerformed != true {
 		t.Errorf("Expected request to be performed, got %b", performedRequest.isPerformed)

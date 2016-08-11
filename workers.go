@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"time"
+  "os"
+  "os/signal"
 )
 
 type Result struct {
@@ -14,28 +16,58 @@ type Task interface {
 	Perform()
 }
 
-func runRequests(concurrency int, requests []Task, verbose bool) []Result {
-	jobs := make(chan []Task, 100)
-	results := make(chan Result, 100)
+func runRequests(concurrency int, requests []Task, verbose bool, hammerMode bool) []Result {
+	jobs := make(chan []Task, 1)
+	results := make(chan Result, 10)
+  unGathered := make(chan bool, 10)
+	finalResults := make(chan []Result, 1)
 
 	setupWorkers(concurrency, jobs, results, verbose)
-	queueJobs(concurrency, jobs, results, requests)
-	return gatherResults(concurrency, len(requests), results)
+  if hammerMode {
+    go queueInfiniteJobs(jobs, requests, unGathered)
+  } else {
+    go queueJobs(concurrency, jobs, requests, unGathered)
+  }
+	go gatherResults(results, finalResults, unGathered)
+  return <-finalResults
 }
 
-func gatherResults(count int, requestCount int, results <-chan Result) []Result {
+func gatherResults(results <-chan Result, finalResults chan<- []Result, unGathered <-chan bool) {
 	requests := make([]Result, 0)
-	for i := 0; i < count*requestCount; i++ {
-		requests = append(requests, <-results)
-	}
-	return requests
+  for _ = range unGathered {
+    requests = append(requests, <-results)
+  }
+	finalResults <- requests
 }
 
-func queueJobs(count int, jobs chan<- []Task, results <-chan Result, requests []Task) {
-	for i := 0; i < count; i++ {
-		jobs <- requests
+func queueInfiniteJobs(jobs chan<- []Task, requests []Task, unGathered chan<- bool) {
+  interrupt := make(chan os.Signal, 1)
+  signal.Notify(interrupt, os.Interrupt)
+  loop:
+	for {
+    select {
+    case <- interrupt:
+      break loop
+    default:
+      jobs <- requests
+      for _, _ = range requests {
+        unGathered <- true
+      }
+    }
 	}
 	close(jobs)
+  close(unGathered)
+}
+
+func queueJobs(count int, jobs chan<- []Task, requests []Task, unGathered chan<- bool) {
+	for i := 0; i < count; i++ {
+		jobs <- requests
+    for _, _ = range requests {
+      unGathered <- true
+    }
+	}
+	close(jobs)
+  close(unGathered)
 }
 
 func setupWorkers(count int, jobs <-chan []Task, results chan<- Result, verbose bool) {
